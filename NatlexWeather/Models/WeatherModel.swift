@@ -10,7 +10,7 @@ import Foundation
 struct WeatherModel: Identifiable, Comparable {
     var id = UUID().uuidString
     let geocoding: GeocodingResponseModel
-//    var conditions: [WeatherResponseModel] = []
+    var conditions: [WeatherResponseModel] = []
     
     static func < (lhs: WeatherModel, rhs: WeatherModel) -> Bool {
         return lhs.geocoding.name < rhs.geocoding.name
@@ -19,5 +19,4 @@ struct WeatherModel: Identifiable, Comparable {
     static func == (lhs: WeatherModel, rhs: WeatherModel) -> Bool {
         return lhs.id == rhs.id
     }
-    
 }
