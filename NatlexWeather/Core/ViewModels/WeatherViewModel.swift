@@ -14,12 +14,13 @@ final class WeatherViewModel: ObservableObject {
     @Published private(set) var isLoadingCurrentLocation = false
     @Published private(set) var locationError: LocationError?
     
-    @Published var weatherConditions: [WeatherModel] = []
+    @Published var weatherInCities: [WeatherModel] = []
+    @Published private var weatherConditions: [String: WeatherResponseModel] = [:]
     @Published var cities: [GeocodingResponseModel] = []
     @Published var searchCity: String = ""
     
     @Published var isCelsius = false
-
+    
     private let locationManager = LocationManager()
     private let weatherService = WeatherDataService()
     private let geocodingService = GeocodingDataService()
@@ -55,11 +56,29 @@ final class WeatherViewModel: ObservableObject {
     }
     
     public func addWeatherCondition(_ geocodingData: GeocodingResponseModel) {
-        let _geocoding = Set(weatherConditions.map { $0.geocoding })
+        let _geocoding = Set(weatherInCities.map { $0.geocoding })
         if !_geocoding.contains(geocodingData) {
             let weather = WeatherModel(geocoding: geocodingData)
-            weatherConditions.append(weather)
+            weatherInCities.append(weather)
             portfolioDataService.updatePortfolio(weather: weather)
+            
+            $weatherInCities
+                .flatMap { $0.publisher }
+                .first { $0.id == weather.id }
+                .sink { weatherModel in
+                    self.weatherService.getWeather(latitude: weatherModel.geocoding.lat, longitude: weather.geocoding.lon)
+                    self.weatherService.$weather.receive(on: DispatchQueue.main)
+                        .sink(receiveValue: { [weak self] (returnedWeatherResponse) in
+                            guard let self = self else { return }
+                            switch returnedWeatherResponse {
+                            case .some(let weatherResponseValue):
+                                self.weatherConditions[weather.id] = weatherResponseValue
+                            case .none : break
+                            }
+                        })
+                        .store(in: &self.cancellables)
+                }
+                .store(in: &cancellables)
         }
     }
     
@@ -84,7 +103,18 @@ final class WeatherViewModel: ObservableObject {
         portfolioDataService.$savedEntities
             .map(mapSavedDataToWeather)
             .sink { [weak self] (returnedWeather) in
-                self?.weatherConditions = returnedWeather
+                self?.weatherInCities = returnedWeather
+            }
+            .store(in: &cancellables)
+        
+        $weatherConditions
+            .map(mapWeatherToCity)
+            .sink { (index, returnedWeatherModel) in
+                if let unwrappedIndex = index,
+                   let unwrappedWeatherModel = returnedWeatherModel {
+                    self.weatherInCities[unwrappedIndex].conditions.append(unwrappedWeatherModel)
+                    self.portfolioDataService.updatePortfolio(weather: self.weatherInCities[unwrappedIndex])
+                }
             }
             .store(in: &cancellables)
     }
@@ -101,7 +131,16 @@ final class WeatherViewModel: ObservableObject {
         }
         return _weather
     }
+    
+    private func mapWeatherToCity(_ weatherCondition: [String: WeatherResponseModel]) -> (Int?, WeatherResponseModel?) {
+        var returnedWeatherResponseModel: WeatherResponseModel?
+        var returnedIndex: Int?
+        weatherInCities.enumerated().forEach { (index, weatherModel) in
+            if let matchedWeatherResponse = weatherCondition[weatherModel.id] {
+                returnedWeatherResponseModel = matchedWeatherResponse
+                returnedIndex = index
+            }
+        }
+        return (returnedIndex, returnedWeatherResponseModel)
+    }
 }
-
-
-

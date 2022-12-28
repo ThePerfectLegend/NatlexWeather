@@ -99,8 +99,11 @@ extension HomeView {
     }
     
     var addedCityList: some View {
-        List(weatherViewModel.weatherConditions) { weather in
-            CityRowView(city: weather)
+        List(weatherViewModel.weatherInCities) { city in
+            VStack(alignment: .leading) {
+                Text(city.geocoding.name)
+                Text(city.conditions.last?.condition.temperature.description ?? "No value")
+            }
         }
         .listStyle(.plain)
     }
