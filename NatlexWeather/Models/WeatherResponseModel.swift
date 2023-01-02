@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct WeatherResponseModel: Codable {
+struct WeatherResponseModel: Codable, Identifiable {
     let coordinate: Coordinate
     let condition: Condition
     let date: Int
@@ -27,7 +27,8 @@ struct Coordinate: Codable {
 }
 
 struct Condition: Codable {
-    let temperature, feelsLike, minTemperature, maxTemperature: Double
+    let temperature: Double
+    let feelsLike, minTemperature, maxTemperature: Double
     let pressure, humidity: Int
     
     enum CodingKeys: String, CodingKey {
@@ -36,5 +37,42 @@ struct Condition: Codable {
         case maxTemperature = "temp_max"
         case minTemperature = "temp_min"
         case feelsLike = "feels_like"
+    }
+}
+
+extension WeatherResponseModel {
+    init(_ entity: WeatherResponseEntity) {
+        self.id = Int(entity.id)
+        self.timezone = Int(entity.timezone)
+        self.date = Int(entity.date)
+        self.name = entity.name ?? ""
+        if let unwrappedCoordinate = entity.coordinateEntity {
+            self.coordinate = Coordinate(unwrappedCoordinate)
+        } else {
+            self.coordinate = Coordinate(lon: 0, lat: 0)
+        }
+        if let unwrappedCondition = entity.conditionEntity {
+            self.condition = Condition(unwrappedCondition)
+        } else {
+            self.condition = Condition(temperature: 0, feelsLike: 0, minTemperature: 0, maxTemperature: 0, pressure: 0, humidity: 0)
+        }
+    }
+}
+
+extension Coordinate {
+    init(_ entity: CoordinateEntity) {
+        self.lon = entity.lon
+        self.lat = entity.lat
+    }
+}
+
+extension Condition {
+    init(_ entity: ConditionEntity) {
+        self.pressure = Int(entity.pressure)
+        self.temperature = entity.temperature
+        self.minTemperature = entity.minTemperature
+        self.maxTemperature = entity.maxTemperature
+        self.humidity = Int(entity.humidity)
+        self.feelsLike = entity.feelsLike
     }
 }

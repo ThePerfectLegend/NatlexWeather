@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21512" systemVersion="21G217" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="ConditionEntity" representedClassName=".ConditionEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="feelsLike" optional="YES" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="humidity" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="maxTemperature" optional="YES" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="minTemperature" optional="YES" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="pressure" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="temperature" optional="YES" attributeType="Double" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="weatherResponseEntity" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="WeatherResponseEntity" inverseName="conditionEntity" inverseEntity="WeatherResponseEntity"/>
+    </entity>
+    <entity name="CoordinateEntity" representedClassName=".CoordinateEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="lat" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="lon" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <relationship name="weatherResponseEntity" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="WeatherResponseEntity" inverseName="coordinateEntity" inverseEntity="WeatherResponseEntity"/>
+    </entity>
     <entity name="GeocodingEntity" representedClassName=".GeocodingEntity" syncable="YES" codeGenerationType="class">
         <attribute name="country" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="lat" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
@@ -11,5 +25,15 @@
     <entity name="WeatherEntity" representedClassName=".WeatherEntity" syncable="YES" codeGenerationType="class">
         <attribute name="id" attributeType="String" defaultValueString=""/>
         <relationship name="geocodingEntity" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="GeocodingEntity" inverseName="weatherEntity" inverseEntity="GeocodingEntity"/>
+        <relationship name="weatherResponseEntity" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="WeatherResponseEntity" inverseName="weatherEntity" inverseEntity="WeatherResponseEntity"/>
+    </entity>
+    <entity name="WeatherResponseEntity" representedClassName=".WeatherResponseEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="date" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="timezone" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="conditionEntity" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ConditionEntity" inverseName="weatherResponseEntity" inverseEntity="ConditionEntity"/>
+        <relationship name="coordinateEntity" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CoordinateEntity" inverseName="weatherResponseEntity" inverseEntity="CoordinateEntity"/>
+        <relationship name="weatherEntity" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="WeatherEntity" inverseName="weatherResponseEntity" inverseEntity="WeatherEntity"/>
     </entity>
 </model>

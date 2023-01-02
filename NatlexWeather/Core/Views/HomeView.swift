@@ -32,6 +32,12 @@ struct HomeView: View {
                     getLocationButton
                         .disabled(weatherViewModel.isLoadingCurrentLocation)
                 }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Image(systemName: "house")
+                        .onTapGesture {
+                            print(weatherViewModel.weatherService.weatherConditions)
+                        }
+                }
             }
         }
     }
@@ -88,7 +94,7 @@ extension HomeView {
                 }
                 .containerShape(Rectangle())
                 .onTapGesture {
-                    weatherViewModel.addWeatherCondition(geocodingResponse)
+                    weatherViewModel.addCity(geocodingResponse)
                     focusedTextField = false
                     weatherViewModel.searchCity = ""
                     weatherViewModel.cities.removeAll()
@@ -102,7 +108,9 @@ extension HomeView {
         List(weatherViewModel.weatherInCities) { city in
             VStack(alignment: .leading) {
                 Text(city.geocoding.name)
-                Text(city.conditions.last?.condition.temperature.description ?? "No value")
+                ForEach(city.conditions) { condition in
+                    Text(condition.condition.temperature.description)
+                }
             }
         }
         .listStyle(.plain)

@@ -15,16 +15,15 @@ final class WeatherViewModel: ObservableObject {
     @Published private(set) var locationError: LocationError?
     
     @Published var weatherInCities: [WeatherModel] = []
-    @Published private var weatherConditions: [String: WeatherResponseModel] = [:]
     @Published var cities: [GeocodingResponseModel] = []
     @Published var searchCity: String = ""
     
     @Published var isCelsius = false
     
     private let locationManager = LocationManager()
-    private let weatherService = WeatherDataService()
+    let weatherService = WeatherDataService()
     private let geocodingService = GeocodingDataService()
-    private let portfolioDataService = PortfolioDataService()
+    let portfolioDataService = PortfolioDataService()
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -55,30 +54,14 @@ final class WeatherViewModel: ObservableObject {
             .store(in: &cancellables)
     }
     
-    public func addWeatherCondition(_ geocodingData: GeocodingResponseModel) {
+    public func addCity(_ geocodingData: GeocodingResponseModel) {
         let _geocoding = Set(weatherInCities.map { $0.geocoding })
         if !_geocoding.contains(geocodingData) {
             let weather = WeatherModel(geocoding: geocodingData)
+//            print("--- addCity: \(weather.id)  ---")
             weatherInCities.append(weather)
-            portfolioDataService.updatePortfolio(weather: weather)
-            
-            $weatherInCities
-                .flatMap { $0.publisher }
-                .first { $0.id == weather.id }
-                .sink { weatherModel in
-                    self.weatherService.getWeather(latitude: weatherModel.geocoding.lat, longitude: weather.geocoding.lon)
-                    self.weatherService.$weather.receive(on: DispatchQueue.main)
-                        .sink(receiveValue: { [weak self] (returnedWeatherResponse) in
-                            guard let self = self else { return }
-                            switch returnedWeatherResponse {
-                            case .some(let weatherResponseValue):
-                                self.weatherConditions[weather.id] = weatherResponseValue
-                            case .none : break
-                            }
-                        })
-                        .store(in: &self.cancellables)
-                }
-                .store(in: &cancellables)
+            weatherService.getWeather(latitude: weather.geocoding.lat, longitude: weather.geocoding.lon, id: weather.id)
+            self.portfolioDataService.updatePortfolio(weather: weather)
         }
     }
     
@@ -86,7 +69,7 @@ final class WeatherViewModel: ObservableObject {
     
     private func addSubscribers() {
         $searchCity
-            .dropFirst(1)
+            .dropFirst()
             .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
             .filter { !$0.isEmpty }
             .sink { [weak self] (cityName) in
@@ -101,33 +84,36 @@ final class WeatherViewModel: ObservableObject {
             .store(in: &cancellables)
         
         portfolioDataService.$savedEntities
-            .map(mapSavedDataToWeather)
+            .map(mapSavedDataToWeatherInCities)
             .sink { [weak self] (returnedWeather) in
                 self?.weatherInCities = returnedWeather
             }
             .store(in: &cancellables)
         
-        $weatherConditions
+        weatherService.$weatherConditions
             .map(mapWeatherToCity)
-            .sink { (index, returnedWeatherModel) in
+            .sink { (index, weatherResponseModel) in
                 if let unwrappedIndex = index,
-                   let unwrappedWeatherModel = returnedWeatherModel {
-                    self.weatherInCities[unwrappedIndex].conditions.append(unwrappedWeatherModel)
-                    self.portfolioDataService.updatePortfolio(weather: self.weatherInCities[unwrappedIndex])
+                   let unwrappedWeatherModel = weatherResponseModel {
+                    if !self.weatherInCities[unwrappedIndex].conditions.contains(where: { $0.id == unwrappedWeatherModel.id }) {
+                        self.weatherInCities[unwrappedIndex].conditions.append(unwrappedWeatherModel)
+                        self.portfolioDataService.updatePortfolio(weather: self.weatherInCities[unwrappedIndex])
+                    }
                 }
             }
             .store(in: &cancellables)
     }
     
-    private func mapSavedDataToWeather(_ data: [WeatherEntity]) -> [WeatherModel] {
+    private func mapSavedDataToWeatherInCities(_ data: [WeatherEntity]) -> [WeatherModel] {
         var _weather: [WeatherModel] = []
         data.forEach { weatherEntity in
             if let unwrappedGeocoding = weatherEntity.geocodingEntity {
                 let _geocoding = GeocodingResponseModel(unwrappedGeocoding)
-                let _weatherModel = WeatherModel(id: weatherEntity.id ?? "", geocoding: _geocoding)
+                let _conditions: [WeatherResponseModel] = (weatherEntity.weatherResponseEntity?.map({ WeatherResponseModel($0 as! WeatherResponseEntity)}))!
+                let _weatherModel = WeatherModel(id: weatherEntity.id ?? "", geocoding: _geocoding, conditions: _conditions)
                 _weather.append(_weatherModel)
+                weatherService.getWeather(latitude: _geocoding.lat, longitude: _geocoding.lon, id: _weatherModel.id)
             }
-            
         }
         return _weather
     }
@@ -141,6 +127,7 @@ final class WeatherViewModel: ObservableObject {
                 returnedIndex = index
             }
         }
+//        print("\(returnedIndex) \(returnedWeatherResponseModel)")
         return (returnedIndex, returnedWeatherResponseModel)
     }
 }
