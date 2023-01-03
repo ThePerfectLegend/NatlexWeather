@@ -12,6 +12,7 @@ struct HomeView: View {
     @EnvironmentObject private var weatherViewModel: WeatherViewModel
     @FocusState private var focusedTextField: Bool
     @State var isCelsius = false
+    @State var selectedWeather: WeatherModel?
     
     var body: some View {
         NavigationView {
@@ -27,16 +28,13 @@ struct HomeView: View {
             }
             .navigationTitle("Weather")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(item: $selectedWeather) {
+                WeatherDetailView(isCelsius: weatherViewModel.isCelsius, weather: $0)
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     getLocationButton
                         .disabled(weatherViewModel.isLoadingCurrentLocation)
-                }
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Image(systemName: "house")
-                        .onTapGesture {
-                            print(weatherViewModel.weatherService.weatherConditions)
-                        }
                 }
             }
         }
@@ -105,15 +103,31 @@ extension HomeView {
     }
     
     var addedCityList: some View {
-        List(weatherViewModel.weatherInCities) { city in
-            VStack(alignment: .leading) {
-                Text(city.geocoding.name)
-                ForEach(city.conditions, id: \.date) { condition in
-                    Text(condition.condition.temperature.description)
+        List(weatherViewModel.weatherInCities) { weather in
+            HStack {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text(cityNameAndTemp(city: weather.geocoding.name, temperature: weather.conditions.last?.condition.temperature))
+                    Text((weather.conditions.last?.date).asStringDate())
                 }
+                    Spacer()
+                    Button {
+                        selectedWeather = weather
+                    } label: {
+                        Image(systemName: "doc.text.magnifyingglass")
+                            .foregroundColor(.accentColor)
+                    }
+                    .opacity(weather.conditions.count > 1 ? 1 : 0)
             }
         }
         .listStyle(.plain)
     }
     
+    func cityNameAndTemp(city: String, temperature: Double?) -> String {
+        if let unwrappedTemperature = temperature {
+            return String("\(city), \(weatherViewModel.temperatureString(temperature: unwrappedTemperature, withSymbol: true))")
+        } else {
+            return city
+        }
+    }
 }
+

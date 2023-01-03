@@ -21,9 +21,9 @@ final class WeatherViewModel: ObservableObject {
     @Published var isCelsius = false
     
     private let locationManager = LocationManager()
-    let weatherService = WeatherDataService()
+    private let weatherService = WeatherDataService()
     private let geocodingService = GeocodingDataService()
-    let portfolioDataService = PortfolioDataService()
+    private let portfolioDataService = PortfolioDataService()
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -62,6 +62,18 @@ final class WeatherViewModel: ObservableObject {
             weatherInCities.append(weather)
             weatherService.getWeather(latitude: weather.geocoding.lat, longitude: weather.geocoding.lon, id: weather.id)
             self.portfolioDataService.updatePortfolio(weather: weather)
+        }
+    }
+    
+    public func temperatureString(temperature: Double?, withSymbol: Bool) -> String {
+        if let unwrappedTemperature = temperature {
+            if self.isCelsius {
+                return unwrappedTemperature.asCelsiusDegreeString(withSymbol: withSymbol)
+            } else {
+                return unwrappedTemperature.asFahrenheitDegreeString(withSymbol: withSymbol)
+            }
+        } else {
+           return ""
         }
     }
     

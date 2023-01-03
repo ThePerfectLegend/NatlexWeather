@@ -16,19 +16,22 @@ extension Double {
         Double(self - 273.5).rounded(toPlaces: 0)
     }
     
-    func asFahrenheitString() -> String {
-        String(format: "%0.f", self.asFahrenheit()) + "°F"
+    func asFahrenheitDegreeString(withSymbol: Bool) -> String {
+        if withSymbol {
+            return String(format: "%0.f", self.asFahrenheit()) + "°F"
+        } else {
+           return  String(format: "%0.f", self.asFahrenheit()) + "°"
+        }
+    }
+    
+    func asCelsiusDegreeString(withSymbol: Bool) -> String {
+        if withSymbol {
+            return String(format: "%0.f", self.asCelsius()) + "°C"
+        } else {
+           return  String(format: "%0.f", self.asCelsius()) + "°"
+        }
+    }
         
-    }
-    
-    func asCelsiusString() -> String {
-        String(format: "%0.f", self.asCelsius()) + "°C"
-    }
-    
-    func asDegreeString() -> String {
-        String(format: "%0.f", self) + "°"
-    }
-    
     func rounded(toPlaces places:Int) -> Double {
         let divisor = pow(10.0, Double(places))
         let value = (self * divisor).rounded() / divisor
@@ -39,3 +42,5 @@ extension Double {
         }
     }
 }
+
+

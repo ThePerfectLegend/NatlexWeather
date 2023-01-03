@@ -50,24 +50,11 @@ extension CurrentWeatherView {
     }
     
     var currentCityTemp: some View {
-        Text(currentCityTempValue)
+        Text(weatherViewModel.temperatureString(temperature: weatherViewModel.currentWeather?.condition.temperature, withSymbol: false))
             .font(.title2.weight(.medium))
             .opacity(weatherViewModel.currentWeather?.condition.temperature == nil ? 0 : 1)
     }
-    
-    var currentCityTempValue: String {
-        if let unwrappedTemp = weatherViewModel.currentWeather?.condition.temperature {
-            if weatherViewModel.isCelsius {
-                return unwrappedTemp.asCelsius().asDegreeString()
-
-            } else {
-                return unwrappedTemp.asFahrenheit().asDegreeString()
-            }
-        } else {
-           return "Placeholder"
-        }
-    }
-    
+        
     var fahrenheitToggle: some View {
         HStack {
             Text("F")
