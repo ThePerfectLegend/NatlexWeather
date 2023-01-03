@@ -108,7 +108,7 @@ extension HomeView {
         List(weatherViewModel.weatherInCities) { city in
             VStack(alignment: .leading) {
                 Text(city.geocoding.name)
-                ForEach(city.conditions) { condition in
+                ForEach(city.conditions, id: \.date) { condition in
                     Text(condition.condition.temperature.description)
                 }
             }

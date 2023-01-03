@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct WeatherResponseModel: Codable, Identifiable {
+struct WeatherResponseModel: Codable, Hashable {
     let coordinate: Coordinate
     let condition: Condition
     let date: Int
@@ -22,11 +22,11 @@ struct WeatherResponseModel: Codable, Identifiable {
     }
 }
 
-struct Coordinate: Codable {
+struct Coordinate: Codable, Hashable {
     let lon, lat: Double
 }
 
-struct Condition: Codable {
+struct Condition: Codable, Hashable {
     let temperature: Double
     let feelsLike, minTemperature, maxTemperature: Double
     let pressure, humidity: Int

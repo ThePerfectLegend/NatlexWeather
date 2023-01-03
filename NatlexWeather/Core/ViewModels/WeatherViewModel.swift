@@ -58,7 +58,7 @@ final class WeatherViewModel: ObservableObject {
         let _geocoding = Set(weatherInCities.map { $0.geocoding })
         if !_geocoding.contains(geocodingData) {
             let weather = WeatherModel(geocoding: geocodingData)
-//            print("--- addCity: \(weather.id)  ---")
+            //            print("--- addCity: \(weather.id)  ---")
             weatherInCities.append(weather)
             weatherService.getWeather(latitude: weather.geocoding.lat, longitude: weather.geocoding.lon, id: weather.id)
             self.portfolioDataService.updatePortfolio(weather: weather)
@@ -95,10 +95,8 @@ final class WeatherViewModel: ObservableObject {
             .sink { (index, weatherResponseModel) in
                 if let unwrappedIndex = index,
                    let unwrappedWeatherModel = weatherResponseModel {
-                    if !self.weatherInCities[unwrappedIndex].conditions.contains(where: { $0.id == unwrappedWeatherModel.id }) {
-                        self.weatherInCities[unwrappedIndex].conditions.append(unwrappedWeatherModel)
-                        self.portfolioDataService.updatePortfolio(weather: self.weatherInCities[unwrappedIndex])
-                    }
+                    self.weatherInCities[unwrappedIndex].conditions.append(unwrappedWeatherModel)
+                    self.portfolioDataService.updatePortfolio(weather: self.weatherInCities[unwrappedIndex])
                 }
             }
             .store(in: &cancellables)
@@ -127,7 +125,7 @@ final class WeatherViewModel: ObservableObject {
                 returnedIndex = index
             }
         }
-//        print("\(returnedIndex) \(returnedWeatherResponseModel)")
+        //        print("\(returnedIndex) \(returnedWeatherResponseModel)")
         return (returnedIndex, returnedWeatherResponseModel)
     }
 }
