@@ -7,6 +7,13 @@
 
 import Foundation
 
+extension Int {
+    func asDate() -> Date {
+        let timeInterval = TimeInterval(self)
+        return Date(timeIntervalSince1970: timeInterval)
+    }
+}
+
 extension Optional where Wrapped == Int {
     func asStringDate() -> String {
         switch self {

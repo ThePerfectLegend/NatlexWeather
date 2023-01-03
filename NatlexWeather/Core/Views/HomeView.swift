@@ -103,23 +103,30 @@ extension HomeView {
     }
     
     var addedCityList: some View {
-        List(weatherViewModel.weatherInCities) { weather in
-            HStack {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(cityNameAndTemp(city: weather.geocoding.name, temperature: weather.conditions.last?.condition.temperature))
-                    Text((weather.conditions.last?.date).asStringDate())
-                }
-                    Spacer()
-                    Button {
-                        selectedWeather = weather
-                    } label: {
-                        Image(systemName: "doc.text.magnifyingglass")
-                            .foregroundColor(.accentColor)
+        ScrollView {
+            ForEach(weatherViewModel.weatherInCities) { weather in
+                VStack {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text(cityNameAndTemp(city: weather.geocoding.name, temperature: weather.conditions.last?.condition.temperature))
+                            Text((weather.conditions.last?.date).asStringDate())
+                        }
+                        Spacer()
+                        Button {
+                            selectedWeather = weather
+                        } label: {
+                            Image(systemName: "doc.text.magnifyingglass")
+                                .foregroundColor(.accentColor)
+                        }
+                        .disabled(weather.conditions.count < 1)
+                        .opacity(weather.conditions.count > 1 ? 1 : 0)
                     }
-                    .opacity(weather.conditions.count > 1 ? 1 : 0)
+                    .padding(.horizontal)
+                    Divider()
+                        .padding(.leading)
+                }
             }
         }
-        .listStyle(.plain)
     }
     
     func cityNameAndTemp(city: String, temperature: Double?) -> String {

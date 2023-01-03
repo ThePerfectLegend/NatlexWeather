@@ -9,23 +9,36 @@ import SwiftUI
 import Charts
 
 struct WeatherDetailView: View {
-        
-    var isCelsius: Bool
-    @State var weather: WeatherModel
+    
+    @ObservedObject var vm: WeatherDetailViewModel
     
     init(isCelsius: Bool, weather: WeatherModel) {
-        self.isCelsius = isCelsius
-        _weather = State(initialValue: weather)
+        self.vm = WeatherDetailViewModel(weather: weather, isCelsius: isCelsius)
     }
     
     var body: some View {
         NavigationView {
-            VStack {
-                ForEach(weather.conditions, id: \.date) { condition in
-                    Text(condition.condition.temperature.description)
+            ScrollView {
+                Chart(vm.weatherConditions) { condition in
+                    PointMark (
+                        x: .value("Date", condition.date, unit: .day),
+                        y: .value("Temperature", condition.temperature)
+                    )
+                    LineMark(
+                        x: .value("Date", condition.date, unit: .day),
+                        y: .value("Temperature", condition.temperature)
+                    )
+                    .interpolationMethod(.catmullRom)
                 }
+                .frame(height: 250)
+                HStack {
+                    Text("Min Temp: \(vm.weatherConditions.last?.minTemperature.description ?? "")")
+                    Spacer()
+                    Text("Max Temp: \(vm.weatherConditions.last?.maxTemperature.description ?? "")")
+                }
+                .padding(.horizontal)
             }
-            .navigationTitle(weather.geocoding.name)
+            .navigationTitle(vm.weather.geocoding.name)
             .navigationBarTitleDisplayMode(.inline)
         }
     }
