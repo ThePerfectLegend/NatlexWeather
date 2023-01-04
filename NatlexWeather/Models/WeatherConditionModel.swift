@@ -15,7 +15,7 @@ struct WeatherConditionModel: Identifiable {
     let minTemperature: Double
 }
 
-extension WeatherConditionModel {
+extension WeatherConditionModel: Comparable {
     init(from weatherResponse: WeatherResponseModel, isCelsius: Bool) {
         date = weatherResponse.date.asDate()
         if isCelsius {
@@ -27,5 +27,9 @@ extension WeatherConditionModel {
             maxTemperature = weatherResponse.condition.maxTemperature.asFahrenheit()
             minTemperature = weatherResponse.condition.minTemperature.asFahrenheit()
         }
+    }
+    
+    static func < (lhs: WeatherConditionModel, rhs: WeatherConditionModel) -> Bool {
+        return lhs.date < rhs.date
     }
 }
