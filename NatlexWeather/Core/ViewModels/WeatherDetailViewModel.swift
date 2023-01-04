@@ -44,9 +44,7 @@ final class WeatherDetailViewModel: ObservableObject {
         let latestDates = latestDatePerDay
             .map { $0.value }
             .sorted(by: <)
-        
-        print(latestDates)
-        
+                
         if let maxDate = latestDates.max(),
            let minDate = latestDates.min() {
             dateFrom = minDate
