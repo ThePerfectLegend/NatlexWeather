@@ -26,7 +26,6 @@ final class NetworkingManager {
     
     static func download(url: URL) -> AnyPublisher<Data, Error> {
         return URLSession.shared.dataTaskPublisher(for: url)
-            .print("Download: \(url.description)")
             .tryMap({ try handleURLResponse(output: $0, url: url)})
             .eraseToAnyPublisher()
     }
@@ -36,7 +35,6 @@ final class NetworkingManager {
               response.statusCode >= 200 && response.statusCode < 300 else {
                   throw NetworkingError.badURLResponse(url: url)
               }
-        print("Handle response: \(output.data)")
         return output.data
     }
     
