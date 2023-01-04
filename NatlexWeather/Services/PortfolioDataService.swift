@@ -110,35 +110,3 @@ class PortfolioDataService {
         getPortfolio()
     }
 }
-
-
-
-//entity.weatherResponseEntity = NSSet(array: weatherResponse)
-//
-//var weatherResponse = [WeatherResponseEntity(context: container.viewContext)]
-
-
-//weather.conditions.forEach { weatherResponseModel in
-//    let weatherResponseEntity = WeatherResponseEntity(context: container.viewContext)
-//    weatherResponseEntity.id = Int32(weatherResponseModel.id)
-//    weatherResponseEntity.name = weatherResponseModel.name
-//    weatherResponseEntity.date = Int32(weatherResponseModel.date)
-//    weatherResponseEntity.timezone = Int32(weatherResponseModel.timezone)
-//
-//    let coordinate = CoordinateEntity(context: container.viewContext)
-//    coordinate.lat = weatherResponseModel.coordinate.lat
-//    coordinate.lon = weatherResponseModel.coordinate.lon
-//
-//    let condition = ConditionEntity(context: container.viewContext)
-//    condition.temperature = weatherResponseModel.condition.temperature
-//    condition.feelsLike = weatherResponseModel.condition.feelsLike
-//    condition.humidity = Int32(weatherResponseModel.condition.humidity)
-//    condition.pressure = Int32(weatherResponseModel.condition.pressure)
-//    condition.maxTemperature = weatherResponseModel.condition.maxTemperature
-//    condition.minTemperature = weatherResponseModel.condition.minTemperature
-//
-//    weatherResponseEntity.coordinateEntity = coordinate
-//    weatherResponseEntity.conditionEntity = condition
-//
-//    weatherResponse.append(weatherResponseEntity)
-//}

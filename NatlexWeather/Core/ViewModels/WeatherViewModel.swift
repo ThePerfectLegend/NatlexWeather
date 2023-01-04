@@ -45,7 +45,7 @@ final class WeatherViewModel: ObservableObject {
             } receiveValue: { [weak self] (location) in
                 guard let self = self else { return }
                 self.weatherService.getWeather(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-                self.weatherService.$weather.receive(on: DispatchQueue.main)
+                self.weatherService.$weather.receive(on: RunLoop.main)
                     .sink(receiveValue: { [weak self] (updatedWeather) in
                         self?.currentWeather = updatedWeather
                     })
@@ -58,7 +58,6 @@ final class WeatherViewModel: ObservableObject {
         let _geocoding = Set(weatherInCities.map { $0.geocoding })
         if !_geocoding.contains(geocodingData) {
             let weather = WeatherModel(geocoding: geocodingData)
-//            print("--- addCity: \(weather.id)  ---")
             weatherInCities.append(weather)
             weatherService.getWeather(latitude: weather.geocoding.lat, longitude: weather.geocoding.lon, id: weather.id)
             self.portfolioDataService.updatePortfolio(weather: weather)
@@ -87,7 +86,7 @@ final class WeatherViewModel: ObservableObject {
             .sink { [weak self] (cityName) in
                 guard let self = self else { return }
                 self.geocodingService.fetchCities(searchCity: cityName)
-                self.geocodingService.$cities.receive(on: DispatchQueue.main)
+                self.geocodingService.$cities.receive(on: RunLoop.main)
                     .sink { [weak self] returnedCities in
                         self?.cities = returnedCities
                     }
@@ -139,7 +138,6 @@ final class WeatherViewModel: ObservableObject {
                 returnedIndex = index
             }
         }
-//        print("\(returnedIndex) \(returnedWeatherResponseModel)")
         return (returnedIndex, returnedWeatherResponseModel)
     }
 }

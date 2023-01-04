@@ -19,7 +19,7 @@ final class GeocodingDataService {
         
         citySubscription = NetworkingManager.download(url: url)
             .decode(type: [GeocodingResponseModel].self, decoder: JSONDecoder())
-            .receive(on: DispatchQueue.main)
+            .receive(on: RunLoop.main)
             .sink(receiveCompletion: NetworkingManager.handleCompletion, receiveValue: { [weak self] (returnedCities) in
                 self?.cities = returnedCities
                 self?.citySubscription?.cancel()
