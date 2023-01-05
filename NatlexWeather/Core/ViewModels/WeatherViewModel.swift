@@ -120,7 +120,9 @@ final class WeatherViewModel: ObservableObject {
         data.forEach { weatherEntity in
             if let unwrappedGeocoding = weatherEntity.geocodingEntity {
                 let _geocoding = GeocodingResponseModel(unwrappedGeocoding)
-                let _conditions: [WeatherResponseModel] = (weatherEntity.weatherResponseEntity?.map({ WeatherResponseModel($0 as! WeatherResponseEntity)}))!
+                let _conditions: [WeatherResponseModel] = (weatherEntity.weatherResponseEntity?
+                    .map({ WeatherResponseModel($0 as! WeatherResponseEntity)}))!
+                    .sorted(by: <)
                 let _weatherModel = WeatherModel(id: weatherEntity.id ?? "", geocoding: _geocoding, conditions: _conditions)
                 _weather.append(_weatherModel)
                 weatherService.getWeather(latitude: _geocoding.lat, longitude: _geocoding.lon, id: _weatherModel.id)

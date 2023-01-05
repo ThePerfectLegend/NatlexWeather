@@ -40,7 +40,7 @@ struct Condition: Codable, Hashable {
     }
 }
 
-extension WeatherResponseModel {
+extension WeatherResponseModel: Comparable {
     init(_ entity: WeatherResponseEntity) {
         self.id = Int(entity.id)
         self.timezone = Int(entity.timezone)
@@ -56,6 +56,18 @@ extension WeatherResponseModel {
         } else {
             self.condition = Condition(temperature: 0, feelsLike: 0, minTemperature: 0, maxTemperature: 0, pressure: 0, humidity: 0)
         }
+    }
+    
+    static func > (lhs: WeatherResponseModel, rhs: WeatherResponseModel) -> Bool {
+        return lhs.date > rhs.date
+    }
+    
+    static func < (lhs: WeatherResponseModel, rhs: WeatherResponseModel) -> Bool {
+        return lhs.date < rhs.date
+    }
+    
+    static func == (lhs: WeatherResponseModel, rhs: WeatherResponseModel) -> Bool {
+        return lhs.date == rhs.date
     }
 }
 

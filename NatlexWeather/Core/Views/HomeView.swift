@@ -36,6 +36,12 @@ struct HomeView: View {
                     getLocationButton
                         .disabled(weatherViewModel.isLoadingCurrentLocation)
                 }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Image(systemName: "house")
+                        .onTapGesture {
+                            print(weatherViewModel.weatherInCities)
+                        }
+                }
             }
         }
     }
@@ -71,7 +77,7 @@ extension HomeView {
         )
     }
     
-   @ViewBuilder var searchCityList: some View {
+    @ViewBuilder var searchCityList: some View {
         if !weatherViewModel.searchCity.isEmpty && weatherViewModel.cities.isEmpty {
             VStack(spacing: 12) {
                 Image(systemName: "magnifyingglass")
@@ -109,7 +115,7 @@ extension HomeView {
                     HStack {
                         VStack(alignment: .leading, spacing: 10) {
                             Text(cityNameAndTemp(city: weather.geocoding.name, temperature: weather.conditions.last?.condition.temperature))
-                            Text((weather.conditions.last?.date).asStringDate())
+                            Text(getTime(timeStamp: weather.conditions.last?.date, timezone: weather.conditions.last?.timezone))
                         }
                         Spacer()
                         Button {
@@ -129,11 +135,20 @@ extension HomeView {
         }
     }
     
-    func cityNameAndTemp(city: String, temperature: Double?) -> String {
+    private func cityNameAndTemp(city: String, temperature: Double?) -> String {
         if let unwrappedTemperature = temperature {
             return String("\(city), \(weatherViewModel.temperatureString(temperature: unwrappedTemperature, withSymbol: true))")
         } else {
             return city
+        }
+    }
+    
+    private func getTime(timeStamp: Int?, timezone: Int?) -> String {
+        if let unwrappedTimeStamp = timeStamp,
+           let unwrappedTimezone = timezone {
+            return unwrappedTimeStamp.asStringDate(timezone: unwrappedTimezone)
+        } else {
+            return ""
         }
     }
 }
