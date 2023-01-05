@@ -7,7 +7,8 @@ The project uses MVVM Architecture, SwiftUI, Combine, CoreData, CoreLocation. Li
 ## Technologies & Functionality
 
 - Project uses MVVM Architecture with additional layers between Model and Views. API request created in independent network layer of class `NetworkingManager` and using in different `WeatherDataService` and `GeocodingDataService`.
-- `WeatherDataService` and `GeocodingDataService` connected with ViewModel by `@Publisher` and `@Subcribers` pattern from `Combine` framework. It allows to keep data actual condition.
+- `WeatherDataService` and `GeocodingDataService` connected with ViewModel by `@Publisher` and `@Subcribers` pattern from `Combine` framework. It allows to keep data actual condition. 
 - User can give access to location and get current weather. For getting user location used `LocationManager` build on `CoreLocation` framework.
-- User can search city and add it to portfolio. All portfolio data saves in `CoreData`.
+- User can search city and add it to portfolio. The temperature and location details is parsed from the API response, stored in `CoreData`.
+- User can switch for toggling between Celsius and Fahrenheit.
 - In `WeatherDetailView` created line chart by `Charts`. Downloaded data is filtered by days, using the last response for each day. User can apply custom filter for weather by dates.
